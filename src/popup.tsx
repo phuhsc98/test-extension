@@ -1,21 +1,43 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+
+import { sendToBackground } from "@plasmohq/messaging"
+
+import App from "~app"
+import AppProviders from "~app-providers"
+
+import "./style.css"
 
 function IndexPopup() {
   const [data, setData] = useState("")
 
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  async function sendMessage() {
+    console.log("sendMessage")
+
+    const resp = await sendToBackground({
+      name: "ping",
+      body: {
+        id: 123
+      }
+    })
+
+    console.log("resp", resp)
+  }
+
+  useEffect(() => {
+    window.addEventListener("message", (event) => {
+      console.log("EVAL output: " + event.data)
+    })
+  }, [])
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        padding: 16
-      }}>
-      <h1>
-        Welcome to your <a href="https://www.plasmo.com">Plasmo</a> Extension!
-      </h1>
-      <input onChange={(e) => setData(e.target.value)} value={data} />
-      <footer>Crafted by @PlamoHQ</footer>
-    </div>
+    <AppProviders>
+      <div className="container w-96">
+        <button onClick={sendMessage}>Test func</button>
+        <App />
+      </div>
+    </AppProviders>
   )
 }
 
